@@ -1,0 +1,86 @@
+<html>
+
+<head>
+    <title>LESS GOOOO</title>
+    <link rel="icon" type="image/png" href="Icosahedron.png" />
+    <meta content="LESS GOOOO" property="og:title">
+    <meta content="LESS GOOOO" property="og:description">
+    <meta content="Icosahedron.png" property="og:image">
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif
+        }
+
+        input {
+            margin: 0 auto;
+        }
+
+        canvas {
+            margin: 0 auto;
+            max-width: 512px;
+        }
+    </style>
+
+    <script src="exporender.js"></script>
+</head>
+
+<body>
+    <h1>LESS GOOOO</h1>
+    <label for="file-input"><b>Choose an image</b></label>
+    <input type="file" id="file-input" name="file-input" />
+
+    <canvas id="display-canvas"></canvas>
+
+    <script>
+        document.getElementById("file-input").onchange = function (evt) {
+            let target = evt.target || window.event.srcElement
+            let files = target.files;
+
+            if (this.files[0].type.includes("image")) {
+                if (files && files.length) {
+                    let reader = new FileReader();
+                    reader.onload = function () {
+                        let canvas = document.getElementById("display-canvas");
+                        let context = canvas.getContext("2d");
+
+                        let image = new Image();
+                        image.onload = function () {
+                            canvas.width = image.width;
+                            canvas.height = image.height;
+                            context.drawImage(image, 0, 0);
+                            
+                            let data = context.getImageData(0, 0, image.width, image.height).data;
+
+                            let expoRender = new ExpoRender();
+                            expoRender.load(false, canvas);
+                            expoRender.normalShading = true;
+                            expoRender.addCube(
+                                0, 0, 0, 64, 0xFFFFFFFF, 1
+                            );
+                            expoRender.cameraTranslateX = 0;
+                            expoRender.cameraTranslateY = 0;
+                            expoRender.cameraTranslateZ = -120;
+                            expoRender.worldRotateX = -160;
+                            expoRender.worldRotateY = 20;
+                            expoRender.worldRotateZ = -90;
+                            expoRender.loadTexture(1, image.width, image.height, data);
+                            expoRender.frame(0);
+                            window.expoRender = expoRender;
+                        }
+                        image.src = reader.result;
+                    }
+                    reader.readAsDataURL(files[0]);
+                }
+            }
+        }
+    </script>
+
+</body>
+
+</html>
